@@ -18,6 +18,21 @@ export default function App() {
       <View style={styles.buttonContainer}>
         <Button type="primary" onPress={() => goToCase('Picker')}>Picker选择器</Button>
       </View>
+      <View style={styles.buttonContainer}>
+        <Button type="primary" onPress={() => goToCase('Card')}>卡片效果</Button>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button type="primary" onPress={() => goToCase('Modal')}>Modal弹窗</Button>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button type="primary" onPress={() => goToCase('Swiper')}>轮播图</Button>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button type="primary" onPress={() => goToCase('Toast')}>轻提示</Button>
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button type="primary" onPress={() => goToCase('ActionSheet')}>动作面板</Button>
+      </View>
     </View>
   )
 }
