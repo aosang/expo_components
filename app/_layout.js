@@ -4,7 +4,7 @@ import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-cont
 import { Provider, Theme } from '@ant-design/react-native'
 import { loadAsync } from 'expo-font'
 import { useEffect, useState } from 'react'
-import { Text, StyleSheet } from 'react-native'
+import { Text } from 'react-native'
 
 // 创建自定义主题，添加安全区域支持
 const createCustomTheme = (bottomInset) => {
@@ -34,7 +34,10 @@ function AppContent() {
             backgroundColor: '#fff',
           }
         }}
-      />
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+
     </Provider>
   )
 }
@@ -63,5 +66,5 @@ export default function RootLayout() {
         <AppContent />
       </SafeAreaProvider>
     </GestureHandlerRootView>
-  );
+  )
 }
