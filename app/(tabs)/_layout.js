@@ -25,6 +25,14 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size }) => (
         <Ionicons name="videocam" size={size || 24} color={color || '#000'} />
       )}} />
+
+      <Tabs.Screen 
+        name="paper" 
+        options={{ title: '组件', 
+        tabBarIcon: ({ color, size }) => (
+        <Ionicons name="newspaper" size={size || 24} color={color || '#000'} />
+      )}} />
+
     </Tabs>
   )
 }

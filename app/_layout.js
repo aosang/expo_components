@@ -37,7 +37,6 @@ function AppContent() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
-
     </Provider>
   )
 }
