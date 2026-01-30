@@ -1,11 +1,12 @@
 import { View, StyleSheet, Text } from "react-native"
-import { Button, Modal, Portal, PaperProvider, TextInput  } from "react-native-paper"
+import { Button, Modal, Portal, PaperProvider, TextInput, HelperText  } from "react-native-paper"
 import { useState } from "react";
 
 const Paper = () => {
   const [visible, setVisible] = useState(false)
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [text, setText] = useState('')
 
   const onOpenModal = () => {
     setVisible(true)
@@ -13,6 +14,16 @@ const Paper = () => {
 
   const onCloseModal = () => {
     setVisible(false)
+  }
+
+  const onChangeText = (text) => {
+    setText(text)
+  }
+
+  const hasError = () => {
+    // 手机号正则
+    const phoneRxp = /^1[3-9]\d{9}$/
+    return !phoneRxp.test(text)
   }
 
   return (
@@ -92,6 +103,14 @@ const Paper = () => {
           underlineColor="#ccc"
           activeUnderlineColor="#feB05d"
         />
+
+        {/* HelperText */}
+        <View>
+        <TextInput mode="outlined" label="Phone" value={text} onChangeText={onChangeText} />
+        <HelperText type="info" visible={hasError()}>
+          Phone is invalid!
+        </HelperText>
+        </View>
       </View>
     </PaperProvider>
   )
