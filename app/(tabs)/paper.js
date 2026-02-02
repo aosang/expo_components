@@ -106,10 +106,10 @@ const Paper = () => {
 
         {/* HelperText */}
         <View>
-        <TextInput mode="outlined" label="Phone" value={text} onChangeText={onChangeText} />
-        <HelperText type="info" visible={hasError()}>
-          Phone is invalid!
-        </HelperText>
+          <TextInput mode="outlined" label="Phone" value={text} onChangeText={onChangeText} />
+          <HelperText type="info" visible={hasError()}>
+            Phone is invalid!
+          </HelperText>
         </View>
       </View>
     </PaperProvider>
