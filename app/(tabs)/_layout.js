@@ -6,10 +6,9 @@ export default function TabLayout() {
     <Tabs
     screenOptions={{
       headerTitleAlign: 'center',
-      headerTitle: '组件库',
       tabBarLabelStyle: {
         fontSize: 13,
-      },
+      }
     }}
     > 
       <Tabs.Screen 

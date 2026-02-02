@@ -1,17 +1,29 @@
 import { useVideoPlayer, VideoView } from 'expo-video'
-import { StyleSheet, View, Image, TouchableOpacity, ScrollView } from 'react-native'
-import { useState, useEffect, useCallback } from 'react'
+import { StyleSheet, View, Image, TouchableOpacity, FlatList } from 'react-native'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useEvent } from 'expo'
 import { Ionicons } from '@expo/vector-icons'
 import { WhiteSpace } from '@ant-design/react-native'
 
-// 单个视频组件
-function VideoItem({ video, activeVideoId, onVideoPlay }) {
+// 单个视频组件 - 使用 memo 优化重渲染
+const VideoItem = memo(({ video, activeVideoId, onVideoPlay }) => {
   const [showPoster, setShowPoster] = useState(true)
+  const [isCurrentlyPlaying, setIsCurrentlyPlaying] = useState(false)
   
-  const player = useVideoPlayer(video.videoUrl, player => {
+  // 配置视频源，启用缓存和优化缓冲
+  const videoSource = {
+    uri: video.videoUrl,
+    useCaching: true, // 启用缓存
+  }
+  
+  const player = useVideoPlayer(videoSource, player => {
     player.loop = false
     player.muted = false
+    // 配置缓冲选项以优化播放
+    player.bufferOptions = {
+      preferredForwardBufferDuration: 5,  // 预缓冲5秒
+      waitsToMinimizeStalling: true,      // 自动延迟播放以减少卡顿
+    }
   })
 
   // 监听播放状态变化
@@ -19,20 +31,26 @@ function VideoItem({ video, activeVideoId, onVideoPlay }) {
     isPlaying: player.playing 
   })
 
+  // 同步播放状态并通知父组件
   useEffect(() => {
+    setIsCurrentlyPlaying(isPlaying)
+    
     if (isPlaying) {
       setShowPoster(false)
-      // 通知父组件当前视频正在播放
+      // 当视频开始播放时，立即通知父组件更新activeVideoId
+      // 这样可以确保在全屏模式下播放时，状态是同步的
       onVideoPlay(video.id)
     }
   }, [isPlaying, video.id, onVideoPlay])
 
   // 当其他视频播放时，暂停当前视频
   useEffect(() => {
-    if (activeVideoId !== null && activeVideoId !== video.id && isPlaying) {
+    // 只有当本视频正在播放，且激活的不是本视频时，才暂停
+    // 添加 isCurrentlyPlaying 检查，避免重复暂停操作
+    if (activeVideoId !== null && activeVideoId !== video.id && isCurrentlyPlaying) {
       player.pause()
     }
-  }, [activeVideoId, video.id, isPlaying, player])
+  }, [activeVideoId, video.id, isCurrentlyPlaying, player])
 
   // 点击封面启动播放
   const handlePosterPress = () => {
@@ -50,6 +68,8 @@ function VideoItem({ video, activeVideoId, onVideoPlay }) {
         player={player}
         nativeControls={true}
         contentFit="cover"
+        // Android优化：使用textureView以获得更好的性能
+        surfaceType="textureView"
       />
 
       {showPoster && (
@@ -69,7 +89,7 @@ function VideoItem({ video, activeVideoId, onVideoPlay }) {
       <WhiteSpace size="lg" />
     </View>
   )
-}
+})
 
 export default function VideoScreen() {
   const [activeVideoId, setActiveVideoId] = useState(null)
@@ -91,17 +111,36 @@ export default function VideoScreen() {
     setActiveVideoId(videoId)
   }, [])
 
+  // 渲染单个视频项
+  const renderItem = useCallback(({ item }) => (
+    <VideoItem 
+      video={item} 
+      activeVideoId={activeVideoId}
+      onVideoPlay={handleVideoPlay}
+    />
+  ), [activeVideoId, handleVideoPlay])
+
+  // 提取key
+  const keyExtractor = useCallback((item) => item.id.toString(), [])
+
   return (
-    <ScrollView style={styles.contentContainer}>
-      {videoList.map((video) => (
-        <VideoItem 
-          key={video.id} 
-          video={video} 
-          activeVideoId={activeVideoId}
-          onVideoPlay={handleVideoPlay}
-        />
-      ))}
-    </ScrollView>
+    <FlatList
+      data={videoList}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      style={styles.contentContainer}
+      // 性能优化配置
+      removeClippedSubviews={true}           // 移除不可见的视图
+      maxToRenderPerBatch={2}                // 每批最多渲染2个
+      windowSize={3}                         // 渲染窗口大小
+      initialNumToRender={2}                 // 初始渲染数量
+      updateCellsBatchingPeriod={50}         // 批量更新周期
+      getItemLayout={(data, index) => ({     // 固定高度优化
+        length: 264,
+        offset: 264 * index,
+        index,
+      })}
+    />
   )
 }
 
